@@ -26,7 +26,7 @@ class UserDetailView(DetailView):
         return context
 
     def paginate_files_to_context(self, files, context):
-        paginator = Paginator(files, 3, 0)
+        paginator = Paginator(files, 2, 0)
         page_number = self.request.GET.get('page', 1)
         page = paginator.get_page(page_number)
         context['paginator'] = paginator

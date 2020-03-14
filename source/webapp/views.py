@@ -1,9 +1,11 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.urls import reverse, reverse_lazy
+from django.utils.http import urlencode
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 
 from webapp.forms import SearchForm, FileForm
@@ -17,12 +19,32 @@ class IndexView(ListView):
     paginate_orphans = 1
     ordering = '-created_at'
 
+    def get(self, request, *args, **kwargs):
+        self.form = self.get_search_form()
+        self.search_value = self.get_search_value()
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['form'] = self.form
+        if self.search_value:
+            context['query'] = urlencode({'search': self.search_value})
+        return context
+
     def get_queryset(self):
-        query = self.request.GET.get('form')
-        if query:
-            return File.objects.filter(name__contains=query)
-        else:
-            return File.objects.all()
+        queryset = super().get_queryset()
+        if self.search_value:
+            query = Q(name__icontains=self.search_value)
+            queryset = queryset.filter(query)
+        return queryset.filter(general_access='common')
+
+    def get_search_form(self):
+        return SearchForm(self.request.GET)
+
+    def get_search_value(self):
+        if self.form.is_valid():
+            return self.form.cleaned_data['form']
+        return None
 
 
 class FileCreate(CreateView):

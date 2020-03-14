@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card mb-2">
     <div class="card-body">
         <h5 class="card-title"><a href="{% url 'webapp:file_detail' file.pk %}">{{ file.name }}</a></h5>
         <p class="card-text"><a href="{% if file.author.pk %}{% url 'accounts:detail' file.author.pk %}{% endif %}">{{ file.author|default_if_none:"Аноним"}}</a></p>

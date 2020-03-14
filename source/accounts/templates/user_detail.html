@@ -23,17 +23,17 @@
             </div>
         </div>
     </div>
-        {% if request.user == user_obj or request.user.is_superuser %}
-            <h2 class="text-center">Загруженные файлы:</h2>
-            {% if is_paginated %}
-                {% include 'partial/pagination.html' %}
-            {% endif %}
-    <div class="row">
-            {% for file in user_obj.author_file.all %}
-            <div class="col col-12 col-md-6 col-lg-4 col-xl-3">
-                {% include "partial/file_card.html"%}
-            </div>
-        {% endfor %}
+    <h2 class="text-center">Загруженные файлы:</h2>
+    {% if is_paginated %}
+        {% include 'partial/pagination.html' %}
     {% endif %}
-    </div>
+    <div class="row">
+        {% for file in user_obj.author_file.all %}
+            {% if file.general_access == 'common' or file.author == request.user %}
+                <div class="col col-12 col-md-6 col-lg-4 col-xl-3">
+                    {% include "partial/file_card.html"%}
+                </div>
+            {% endif %}
+        {% endfor %}
+</div>
 {% endblock %}

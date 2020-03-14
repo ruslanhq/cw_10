@@ -6,11 +6,8 @@
     <li class="nav-item"><a href="{% url 'webapp:create_file' %}" class="nav-link">Загрузить файл</a></li>
 {% endblock %}
 {% block content %}
+    {% include 'partial/search.html' %}
     <h1 class="text-center">Файлы</h1>
-    <form method="GET" action="{% url 'webapp:index' %}">
-        <p><input type="search" name="form" placeholder="Поиск по сайту">
-        <input type="submit" value="Найти"></p>
-    </form>
     <div class="row">
         {% for file in file_list %}
             <div class="col col-3">
