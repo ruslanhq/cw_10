@@ -8,7 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 
-from webapp.forms import SearchForm, FileForm
+from webapp.forms import SearchForm, FileForm, FileFormForCommon
 from webapp.models import File
 
 
@@ -43,24 +43,31 @@ class IndexView(ListView):
 
     def get_search_value(self):
         if self.form.is_valid():
-            return self.form.cleaned_data['form']
+            return self.form.cleaned_data['search']
         return None
 
 
 class FileCreate(CreateView):
     model = File
     template_name = 'create_file.html'
-    form_class = FileForm
+    # form_class = FileForm
 
     def get_success_url(self):
         return reverse('webapp:index')
+
+    def get_form_class(self):
+        if self.request.user.is_authenticated:
+            return FileForm
+        else:
+            return FileFormForCommon
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         if self.request.user.is_authenticated:
             self.object.author = self.request.user
             self.object.save()
-        self.object.save()
+        else:
+            self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -79,11 +86,18 @@ class FileUpdate(UserPassesTestMixin, UpdateView):
         return reverse('webapp:file_detail', kwargs={'pk': self.object.pk})
 
 
-class DetailFile(DetailView):
+class DetailFile(UserPassesTestMixin, DetailView):
     pk_url_kwarg = 'pk'
     model = File
     template_name = 'file.html'
     context_object_name = 'file'
+
+    def test_func(self):
+        file = self.get_object()
+        user = self.request.user
+        if (file.general_access == 'private' and user in file.users_private.all()) or file.author == user or\
+                file.general_access == 'common':
+            return True
 
 
 class FileDelete(UserPassesTestMixin, DeleteView):

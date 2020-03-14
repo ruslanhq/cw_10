@@ -17,6 +17,7 @@ class File(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     general_access = models.CharField(max_length=50, choices=ACCESS_CHOICES, default=ACCESS_CHOICES[0][0],
                                       verbose_name='Общий доступ')
+    users_private = models.ManyToManyField('auth.User', related_name='file_private', verbose_name='Приват')
 
     def __str__(self):
         return self.name
