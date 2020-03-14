@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
@@ -41,11 +42,16 @@ class FileCreate(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class FileUpdate(UpdateView):
+class FileUpdate(UserPassesTestMixin, UpdateView):
     form_class = FileForm
     template_name = 'update_file.html'
     model = File
     context_object_name = 'file'
+
+    def test_func(self):
+        file = File.objects.filter(author__username=self.request.user, pk=self.kwargs['pk'])
+        if file or self.request.user.has_perm('webapp.change_file'):
+            return True
 
     def get_success_url(self):
         return reverse('webapp:file_detail', kwargs={'pk': self.object.pk})
@@ -58,9 +64,14 @@ class DetailFile(DetailView):
     context_object_name = 'file'
 
 
-class FileDelete(DeleteView):
+class FileDelete(UserPassesTestMixin, DeleteView):
     model = File
     context_object_name = 'file'
     template_name = 'delete_file.html'
     success_url = reverse_lazy('webapp:index')
+
+    def test_func(self):
+        file = File.objects.filter(author__username=self.request.user, pk=self.kwargs['pk'])
+        if file or self.request.user.has_perm('webapp.delete_file'):
+            return True
 
