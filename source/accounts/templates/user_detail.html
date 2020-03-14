@@ -23,14 +23,14 @@
             </div>
         </div>
     </div>
-    <h2>Избранное</h2>
+        {% if request.user == user_obj or request.user.is_superuser %}
+            <h2 class="text-center">Загруженные файлы:</h2>
     <div class="row">
-{#    {% if request.user == user_obj %}#}
-{#        {% for favorite in user_obj.favorites.all %}#}
-{#            <div class="col col-12 col-md-6 col-lg-4 col-xl-3">#}
-{#                {% include "partial/product_card.html" with product=favorite.product %}#}
-{#            </div>#}
-{#        {% endfor %}#}
-{#    {% endif %}#}
+            {% for file in user_obj.author_file.all %}
+            <div class="col col-12 col-md-6 col-lg-4 col-xl-3">
+                {% include "partial/file_card.html"%}
+            </div>
+        {% endfor %}
+    {% endif %}
     </div>
 {% endblock %}
