@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}{{ file.name }}{% endblock %}
+{% block menu %}
+{% endblock %}
+{% block content %}
+    <h1>Редактирование файла</h1>
+    <form action="{% url 'webapp:update_file' file.pk %}" method="post" enctype="multipart/form-data">
+        {% include 'partial/update_form.html' with button_text='Обновить' %}
+    </form>
+{% endblock %}
